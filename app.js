@@ -20,7 +20,7 @@ app.use(session({
   }
 }));
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://expense-tracker-frontend-alpha-six.vercel.app",
   credentials: true
 }));
 app.use("/api/auth", auth_routes);
