@@ -20,7 +20,7 @@ const login = async (req, res) => {
   const { username, password } = req.body;
   const user = await auth_expense.findOne({ username });
   if (!user) {
-    res.status(404).json({ message: "User Doesn't Exist" });
+    return res.status(404).json({ message: "User Doesn't Exist" });
   }
   console.log("User from DB:", user);
 
