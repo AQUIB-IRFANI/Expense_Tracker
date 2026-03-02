@@ -2,6 +2,7 @@ const express = require("express");
 const routes = require("./router/expenseroute");
 const auth_routes = require("./router/authroute");
 const connect = require("./db/db");
+const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const cors = require("cors");
 require("dotenv").config();
@@ -17,17 +18,21 @@ app.use(
     credentials: true,
   })
 );
-
+app.set("trust proxy", 1);
 app.use(
   session({
-    secret: "expense-secret",
+    secret: process.env.SESSION_SECRET || "expense-secret",
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: "sessions",
+    }),
     cookie: {
       httpOnly: true,
-      secure: true,       
-      sameSite: "none",   
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      secure: true,   
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
