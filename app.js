@@ -2,7 +2,7 @@ const express = require("express");
 const routes = require("./router/expenseroute");
 const auth_routes = require("./router/authroute");
 const connect = require("./db/db");
-const MongoStore = require("connect-mongo");
+const MongoStore = require("connect-mongo").default;
 const session = require("express-session");
 const cors = require("cors");
 require("dotenv").config();
@@ -19,6 +19,8 @@ app.use(
   })
 );
 app.set("trust proxy", 1);
+console.log(MongoStore);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "expense-secret",
@@ -30,7 +32,7 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: true,   
+      secure: true,
       sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24,
     },
