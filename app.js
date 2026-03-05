@@ -2,44 +2,36 @@ const express = require("express");
 const routes = require("./router/expenseroute");
 const auth_routes = require("./router/authroute");
 const connect = require("./db/db");
-const MongoStore = require("connect-mongo").default;
-const session = require("express-session");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
+
+connect();
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://expense-tracker-frontend-alpha-six.vercel.app"
+];
+
 app.use(
   cors({
-    origin: "https://expense-tracker-frontend-alpha-six.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
 app.set("trust proxy", 1);
-console.log(MongoStore);
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "expense-secret",
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
-      collectionName: "sessions",
-    }),
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-  })
-);
-
-connect();
+app.use(cookieParser());
 
 app.use("/api/auth", auth_routes);
 app.use("/expense", routes);
